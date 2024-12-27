@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Movie Recommendations</h1>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search for movies...">
+            </div>
+        </header>
+
+        <main>
+            <div id="searchResults" class="movie-grid"></div>
+        </main>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+
+        searchInput.addEventListener('input', async (e) => {
+            const query = e.target.value;
+            if (query.length < 2) {
+                searchResults.innerHTML = '';
+                return;
+            }
+
+            const response = await fetch(`/search?q=${encodeURIComponent(query)}`);
+            const movies = await response.json();
+
+            searchResults.innerHTML = movies.map(movie => `
+                <div class="movie-card">
+                    <img src="${movie.image}" alt="${movie.title}">
+                    <div class="movie-info">
+                        <h3>${movie.title}</h3>
+                        <p>${movie.description}</p>
+                        <div class="recommendations">
+                            <h4>Recommended Movies:</h4>
+                            <ul>
+                                ${movie.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        });
+    </script>
+</body>
+</html>
